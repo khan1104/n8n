@@ -1,0 +1,1771 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-in",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1320,
+        -240
+      ],
+      "id": "6df388c7-bda7-4956-a9ac-2ebc0208682c",
+      "name": "Webhook",
+      "webhookId": "816dc439-14f0-41dc-8df9-87214b32ca84"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json\n",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $json.whatsapp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        -700
+      ],
+      "id": "3b1ee07f-ce29-4fca-806f-eb13f03af791",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const outputItems = [];\n\nfor (const item of items) {\n  const incomingJson = item.json;\n  if (incomingJson.body && incomingJson.body.Body) {\n    const originalBody = incomingJson.body.Body;\n    const upperCaseBody = originalBody.toUpperCase();\n    let media=null;\n    media=incomingJson.body.MediaUrl0;\n    outputItems.push({\n      json: {\n        Body: upperCaseBody,\n        Media:media\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1160,
+        -240
+      ],
+      "id": "378bc5e3-1523-4a18-9818-4151efaa10e5",
+      "name": "Code",
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Body }}",
+                    "rightValue": "/LIST FILES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9c6da064-6af2-483d-b95f-aff4d59be9fc"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b9d237e6-4cb3-4adc-964d-045ba685fbbe",
+                    "leftValue": "={{ $json.Body }}",
+                    "rightValue": "/LIST FOLDERS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c22cab5d-d6b9-4381-94cf-f013ecf605de",
+                    "leftValue": "={{ $json.Body }}",
+                    "rightValue": "LIST /",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a98002db-6348-472a-b895-be2445efab6d",
+                    "leftValue": "={{ $json.Body }}",
+                    "rightValue": "DELETE /",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "979ab4d8-a681-468f-be4a-7420144da4d5",
+                    "leftValue": "={{ $json.Body }}",
+                    "rightValue": "MOVE /",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e81aa36f-cc20-4e47-9c38-e5f186f5d816",
+                    "leftValue": "={{ $json.Body }}",
+                    "rightValue": "SUMMARY /",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "55527e67-e562-4552-8aeb-46d6e3eb83e7",
+                    "leftValue": "={{ $json.Body }}",
+                    "rightValue": "RENAME",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f452ea1d-ac41-462c-aee8-dcb78798b673",
+                    "leftValue": "={{ $json.Media }}",
+                    "rightValue": "UPLOAD",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1000,
+        -320
+      ],
+      "id": "89cc0db9-8ae5-4067-8a10-d3148daca840",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "limit": 20,
+        "filter": {
+          "whatToSearch": "files"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -800,
+        -700
+      ],
+      "id": "3a725166-4790-480c-b74f-89da5ec74181",
+      "name": "Search files"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "limit": 20,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -680,
+        -620
+      ],
+      "id": "edf5b63b-74bd-4e3f-82b9-45f849595c0e",
+      "name": "Search folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileNames = items.map((item, index) => {\n    const fileNumber = index + 1;\n    return `${fileNumber}) ${item.json.name}`;\n});\nreturn [\n  {\n    json: {\n      file_names: fileNames\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        -700
+      ],
+      "id": "8f690f0f-4745-4f8f-bba7-31694b563532",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c37a336b-1285-4bde-b4d7-6cfe2d8cdca3",
+              "name": "whatsapp",
+              "value": "={{ $json.file_names.join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        -700
+      ],
+      "id": "e6b4a379-af23-4d41-94cd-4888b6d9d36b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const folderNames = items.map((item, index) => {\n    const folderNumber = index + 1;\n    return `${folderNumber}) ${item.json.name}`;\n});\n\nreturn [\n  {\n    json: {\n      folder_names: folderNames\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -620
+      ],
+      "id": "c05069fd-5aa9-417f-a989-cbb736ee1f62",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c37a336b-1285-4bde-b4d7-6cfe2d8cdca3",
+              "name": "whatsapp",
+              "value": "={{ $json.folder_names.join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -200,
+        -620
+      ],
+      "id": "d0eb26a7-523c-49de-87d6-29276919cad9",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}\n"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}\n"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $json.whatsapp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        -620
+      ],
+      "id": "01cc245a-d380-4df9-8739-2267fececb65",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const itemJson = items[0].json; \nconst rawCommand = itemJson.Body ? itemJson.Body.toUpperCase().trim() : '';\n\nlet folderName = null;\nlet commandType = 'UNKNOWN';\n\nif (rawCommand.startsWith('LIST /')) {\n    commandType = 'LIST_FOLDER_CONTENTS';\n    \n    const firstSpaceIndex = rawCommand.indexOf(' ');\n    if (firstSpaceIndex !== -1 && rawCommand.length > firstSpaceIndex + 2) {\n        folderName = rawCommand.substring(firstSpaceIndex + 2); \n    }\n}\nreturn [\n  {\n    json: {\n      command_type: commandType,\n      folder_name: folderName\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        -500
+      ],
+      "id": "41a2cb67-7876-4573-8ee1-b464b801d781",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileNames = items.map((item, index) => {\n    const fileNumber = index + 1;\n    return `${fileNumber}) ${item.json.name}`;\n});\nreturn [\n  {\n    json: {\n      file_names: fileNames\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        -500
+      ],
+      "id": "23a942d3-8036-4108-a791-6ed25aa2e959",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c37a336b-1285-4bde-b4d7-6cfe2d8cdca3",
+              "name": "whatsapp",
+              "value": "={{ $json.file_names.join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        200,
+        -500
+      ],
+      "id": "bcbac45d-8841-4554-bc86-c9168096d7e7",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $json.whatsapp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -500
+      ],
+      "id": "d1951c0c-914a-42bf-a72d-7b6450df5e71",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $json.folder_name }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false\n",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -540,
+        -500
+      ],
+      "id": "65781098-c17d-4dbb-af24-3b072d274414",
+      "name": "get folder ID",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "='{{ $json.id }}' in parents and mimeType != 'application/vnd.google-apps.folder'",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -300,
+        -500
+      ],
+      "id": "5ea8d33a-d5e2-44af-866b-de86c87778b1",
+      "name": "get files in folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const itemJson = items[0].json; \nconst rawCommand = itemJson.Body ? itemJson.Body.trim() : '';\nconst upperCommand = rawCommand.toUpperCase(); \n\nlet commandType = 'UNKNOWN';\nlet folderName = null;\nlet fileName = null;\nif (upperCommand.startsWith('DELETE /')) {\n    commandType = 'DELETE_FILE';\n    const path = rawCommand.substring('DELETE /'.length).trim(); \n    if (path) {\n        const lastSlashIndex = path.lastIndexOf('/');\n\n        if (lastSlashIndex !== -1) {\n            folderName = path.substring(0, lastSlashIndex).trim(); \n            fileName = path.substring(lastSlashIndex + 1).trim(); \n        } else {\n            fileName = path;\n        }\n    }\n\n} else if (upperCommand.startsWith('LIST /')) {\n    commandType = 'LIST_FOLDER_CONTENTS';\n    const firstSpaceIndex = upperCommand.indexOf(' ');\n    if (firstSpaceIndex !== -1 && rawCommand.length > firstSpaceIndex + 2) {\n        folderName = rawCommand.substring(firstSpaceIndex + 2).trim(); \n    }\n} else if (upperCommand === 'LIST FILES') {\n    commandType = 'LIST_ALL_FILES';\n} else if (upperCommand === 'LIST FOLDERS') {\n    commandType = 'LIST_ALL_FOLDERS';\n}\n\nreturn [\n  {\n    json: {\n      command_type: commandType,\n      folder_name: folderName,\n      file_name: fileName\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        -400
+      ],
+      "id": "597fde7c-f50b-4275-b58b-af44c912fc90",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $json.folder_name }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false\n",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -420,
+        -400
+      ],
+      "id": "29e4457d-ac5f-462e-8457-4619bbc000c4",
+      "name": "get folder ID1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $('Code5').item.json.file_name }}' and '{{ $json.id }}' in parents",
+        "filter": {
+          "whatToSearch": "files"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -180,
+        -400
+      ],
+      "id": "31916075-0dad-4dd5-83f6-2f0ad5755302",
+      "name": "get files in folder1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        80,
+        -400
+      ],
+      "id": "f8e31b40-c2d4-4e15-bb03-3ccaf00c6f9b",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}"
+            },
+            {
+              "name": "Body",
+              "value": "=file deleted successfully"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        -400
+      ],
+      "id": "bf4b3f66-9d9e-4422-9604-99b011c3f5d6",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const itemJson = items[0].json; \nconst rawCommand = itemJson.Body ? itemJson.Body.trim() : '';\nconst upperCommand = rawCommand.toUpperCase(); \n\nlet commandType = 'UNKNOWN';\nlet sourceFolderName = null; \nlet destinationFolderName = null; \nlet fileName = null;\n\nconst extractPathComponents = (path) => {\n    let components = { folder: null, file: null };\n    const lastSlashIndex = path.lastIndexOf('/');\n\n    if (lastSlashIndex !== -1) {\n        components.folder = path.substring(0, lastSlashIndex).trim();\n        components.file = path.substring(lastSlashIndex + 1).trim();\n    } else {\n        components.file = path; \n    }\n    return components;\n};\n\nif (upperCommand.startsWith('MOVE /')) {\n    commandType = 'MOVE_FILE';\n    const fullPathString = rawCommand.substring('MOVE '.length).trim();\n\n    let parts = fullPathString.split('/').filter(Boolean);\n\n    if (parts.length >= 3) {\n        destinationFolderName = parts.pop().trim();\n\n        fileName = parts.pop().trim();\n        sourceFolderName = parts.join('/').trim();\n    } else {\n        commandType = 'UNKNOWN';\n    }\n\n} else if (upperCommand.startsWith('DELETE /')) {\n    commandType = 'DELETE_FILE';\n    const path = rawCommand.substring('DELETE /'.length).trim();\n    \n    if (path) {\n        const components = extractPathComponents(path);\n        sourceFolderName = components.folder; \n        fileName = components.file;\n    }\n} else if (upperCommand.startsWith('LIST /')) {\n    commandType = 'LIST_FOLDER_CONTENTS';\n    \n    const firstSpaceIndex = upperCommand.indexOf(' ');\n    if (firstSpaceIndex !== -1 && rawCommand.length > firstSpaceIndex + 2) {\n        sourceFolderName = rawCommand.substring(firstSpaceIndex + 2).trim(); \n    }\n} else if (upperCommand === 'LIST FILES') {\n    commandType = 'LIST_ALL_FILES';\n} else if (upperCommand === 'LIST FOLDERS') {\n    commandType = 'LIST_ALL_FOLDERS';\n}\n\nreturn [\n  {\n    json: {\n      command_type: commandType,\n      source_folder: sourceFolderName,\n      destination_folder: destinationFolderName,\n      file_name: fileName\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        -280
+      ],
+      "id": "918b339c-cb6a-4abb-b382-281ab9de7734",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $json.source_folder }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false\n",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -560,
+        -280
+      ],
+      "id": "97caef9f-ccc2-425d-8e61-157a0b6280b8",
+      "name": "get sourcefolder id",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $('Code6').item.json.destination_folder }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false\n",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -300,
+        -280
+      ],
+      "id": "f81d6b74-f675-4c5b-bc4c-3145f5915c99",
+      "name": "get destfoldder Id",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "={{ $('get sourcefolder id').item.json.id }}",
+          "mode": "id"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('get destfoldder Id').item.json.id }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        200,
+        -280
+      ],
+      "id": "5769d8e9-1ca4-419f-a8d2-dc4a385dfc14",
+      "name": "Move file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $('Code6').item.json.file_name }}'",
+        "limit": 1,
+        "filter": {
+          "whatToSearch": "files"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -40,
+        -280
+      ],
+      "id": "c9f559a7-0617-4e1b-a2bb-6ecbd46263bc",
+      "name": "get file id",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}"
+            },
+            {
+              "name": "Body",
+              "value": "=file {{ $json.name }} moved successfully"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        -280
+      ],
+      "id": "98fd5ebf-7c81-4ef3-96d2-1fbb1b80bb16",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const itemJson = items[0].json; \nconst rawCommand = itemJson.Body ? itemJson.Body.toUpperCase().trim() : '';\n\nlet folderName = null;\nlet commandType = 'UNKNOWN';\n\nif (rawCommand.startsWith('SUMMARY /')) {\n    commandType = 'LIST_FOLDER_CONTENTS';\n    \n    const firstSpaceIndex = rawCommand.indexOf(' ');\n    \n    if (firstSpaceIndex !== -1 && rawCommand.length > firstSpaceIndex + 2) {\n        folderName = rawCommand.substring(firstSpaceIndex + 2); \n    }\n}\n\nreturn [\n  {\n    json: {\n      command_type: commandType,\n      folder_name: folderName\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        -160
+      ],
+      "id": "6597aef6-3bbb-40db-83c5-1d7efee1cd55",
+      "name": "Code7"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $json.folder_name }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false\n",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -440,
+        -160
+      ],
+      "id": "cddf38a7-f6a8-470f-b539-eefbd0145501",
+      "name": "get folder ID2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "='{{ $json.id }}' in parents and mimeType != 'application/vnd.google-apps.folder'",
+        "limit": 1,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -160,
+        -160
+      ],
+      "id": "806d42e7-983a-4bb0-b384-438436ac1f18",
+      "name": "get files in folder2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileNames = items.map((item, index) => {\n\n    const fileNumber = index + 1;\n    return `${fileNumber}) ${item.json.name}`;\n});\nreturn [\n  {\n    json: {\n      file_names: fileNames\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -160
+      ],
+      "id": "63686a56-1ad8-479d-b380-40a29f2c8ced",
+      "name": "Code8"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('get files in folder2').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        340,
+        -160
+      ],
+      "id": "27e2612a-58fb-4dbe-8e1b-8a5faa3b460e",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}"
+            },
+            {
+              "name": "Body",
+              "value": "=the summary is {{ $json.output.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        -140
+      ],
+      "id": "befebb43-05cd-494a-9e80-e28f5a7790d9",
+      "name": "HTTP Request5",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operationMode": "nodeInputBinary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        -160
+      ],
+      "id": "ae0284ae-fe40-4667-ad7c-43a10cc5cf4a",
+      "name": "Summarization Chain1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        520,
+        40
+      ],
+      "id": "e5bbad50-9649-4d6a-a408-99b68da778b3",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Z0wj5DGJYYWDfQXK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const originalBody = $node.Webhook.json.body.Body;\nconst items = [];\nconst regex = /RENAME\\s+\\/([^/]+)\\/([^/]+)/i;\n\nconst match = originalBody.match(regex);\n\nif (match) {\n  const oldFileName = match[1];\n  const newFileName = match[2];\n  items.push({\n    json: {\n      operation: 'rename',\n      filename: oldFileName,      \n      newfilename: newFileName,\n    }\n  });\n} else {\n  items.push({ json: { error: 'Invalid RENAME command format.' } });\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        -60
+      ],
+      "id": "a58d90c1-524b-40ad-a70b-a264d42e1266",
+      "name": "Code9"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $json.filename }}'",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "files"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -560,
+        -20
+      ],
+      "id": "1294db80-28b4-4feb-923b-01c5b63277b8",
+      "name": "get file id1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "={{ $('Code9').item.json.newfilename }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -280,
+        -20
+      ],
+      "id": "599b58fc-e5f6-4edd-be24-9c741292aef9",
+      "name": "Update file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}"
+            },
+            {
+              "name": "Body",
+              "value": "=file name upated to {{ $json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        -20
+      ],
+      "id": "8e126826-74ff-4d0a-a11b-315a01ee69ad",
+      "name": "HTTP Request6",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const command = item.json.Body;\n  const mediaUrl = item.json.Media;\n  const regex = /UPLOAD\\s+\\/([^/]+)\\/([^/]+)/i;\n  const match = command.match(regex);\n\n  if (match) {\n    item.json.folderName = match[1]; \n    item.json.newFileName = match[2];\n    item.json.mediaUrl = mediaUrl;\n    item.json.operation = 'upload';\n    delete item.json.Media;\n\n  } else {\n    item.json.error = 'Invalid UPLOAD command format.';\n  }\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        140
+      ],
+      "id": "7a1ce2e7-deec-429c-9369-6c04fc7bfbc4",
+      "name": "Code10"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Code10').item.json.mediaUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data1"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -140,
+        140
+      ],
+      "id": "23014d34-c71c-40d5-acc6-259175e1741e",
+      "name": "HTTP Request7",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "rjynYzXLTdzYs5ra",
+          "name": "Unnamed credential 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "data1",
+        "name": "={{ $('Code10').item.json.newFileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('get folder ID3').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        100,
+        140
+      ],
+      "id": "5e9813af-2381-4caf-8c6d-04abd45c63a0",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $('Code10').item.json.folderName }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false\n",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -420,
+        140
+      ],
+      "id": "c9adc116-3475-4f22-ab5f-10063c7e114d",
+      "name": "get folder ID3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8ZJ6tX9moPp41Lem",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{$item(0).$node[\"Webhook\"].json.body.AccountSid}}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.To}}"
+            },
+            {
+              "name": "To",
+              "value": "={{$item(0).$node[\"Webhook\"].json.body.From}}"
+            },
+            {
+              "name": "Body",
+              "value": "=file uploaded in folder {{ $('get folder ID3').item.json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        340,
+        140
+      ],
+      "id": "ab0a813a-c48d-4264-8052-2540b50f5f26",
+      "name": "HTTP Request8",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ZaDGXxV6H0w2dvQM",
+          "name": "Unnamed credential"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Search files",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search folders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search folders": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "get folder ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get folder ID": {
+      "main": [
+        [
+          {
+            "node": "get files in folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get files in folder": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "get folder ID1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get folder ID1": {
+      "main": [
+        [
+          {
+            "node": "get files in folder1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get files in folder1": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "get sourcefolder id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get sourcefolder id": {
+      "main": [
+        [
+          {
+            "node": "get destfoldder Id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get destfoldder Id": {
+      "main": [
+        [
+          {
+            "node": "get file id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get file id": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "get folder ID2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get folder ID2": {
+      "main": [
+        [
+          {
+            "node": "get files in folder2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get files in folder2": {
+      "main": [
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code8": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Summarization Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        []
+      ]
+    },
+    "Code9": {
+      "main": [
+        [
+          {
+            "node": "get file id1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get file id1": {
+      "main": [
+        [
+          {
+            "node": "Update file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update file": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        []
+      ]
+    },
+    "Code10": {
+      "main": [
+        [
+          {
+            "node": "get folder ID3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get folder ID3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e5d981a-8adf-4b78-99ae-867d8716c6ee",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0acf98b63e536f85b2c6469b04ba147502ce3abd4d9d4da2ff844cf636366ab0"
+  },
+  "id": "iKnxLmCYlryLQoqN",
+  "tags": []
+}
